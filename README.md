@@ -48,7 +48,7 @@ For enterprise accounts (aimed at mission-critical applications), or for any fur
 
 ## Installing the nodes
 
-The latest release of the TypingDNA Authentication Nodes are available at **[git repo?]**. Copy the jar file available at this location into the `/path/to/tomcat/webapps/openam/WEB-INF/lib/` directory from the instance where AM is deployed. Reload openam so that it recognizes the newly installed nodes.
+The latest release of the TypingDNA Authentication Nodes are available [here](https://github.com/TypingDNA/TypingDNA-ForgeRock-Authentication-Nodes/tree/master/releases). Copy the jar file available at this location into the `/path/to/tomcat/webapps/openam/WEB-INF/lib/` directory from the instance where AM is deployed. Reload openam so that it recognizes the newly installed nodes.
 
 Now the nodes are ready and you may test the 2FA authentication workflows that our plugin provides.
 
@@ -157,6 +157,6 @@ Similar to Login-based typing biometrics authentication, the user and/or the typ
 
 # Licensing and terms of use
 
-The copyright of this document as well as the source code of the TypingDNA integration for ForgeRock is vested by TypingDNA Inc. The TypingDNA integration for ForgeRock is subject to an [Apache License, version 2.0 (“the License”)]. You may not use this file except in compliance with the License. You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0]. 
+The copyright of this document as well as the source code of the TypingDNA integration for ForgeRock is vested by TypingDNA Inc. The TypingDNA integration for ForgeRock is subject to an Apache License, version 2.0 (“the License”). You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. The use of the TypingDNA Authentication API is subject to TypingDNA’s terms and conditions. You may consult the terms and conditions at any time at [https://www.typingdna.com/legal/legal.html].
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. The use of the TypingDNA Authentication API is subject to TypingDNA’s terms and conditions. You may consult the terms and conditions at any time at https://www.typingdna.com/legal/legal.html.
