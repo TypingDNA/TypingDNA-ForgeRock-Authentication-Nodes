@@ -33,7 +33,7 @@ Check out this step-by-step tutorial on how to integrate typing biometrics authe
 
 ## Prerequisites
 1. You have installed ForgeRock Access Management 6.5 on a working instance, as described in the [AM 6.5 Quick Start Guide](https://backstage.forgerock.com/docs/am/6.5/quick-start-guide/index.html).
-2. You have obtained your API key and API secret by signing up for a [TypingDNA account](https://www.typingdna.com/clients/signup).
+2. You have an API key and secret associated with an active TypingDNA Pro/Enterprise account. Users without Pro/Enterprise access can sign up for a free [TypingDNA account](https://www.typingdna.com/clients/signup), and initiate a Pro Trial to test the integration before upgrading.
 3. You have installed the TypingDNA Authentication Nodes plugin, as described in the following section.
 
 While the first point will not be described in detail, as it exceeds the scope of this documentation, the second and third points are addressed in a few short paragraphs below.
