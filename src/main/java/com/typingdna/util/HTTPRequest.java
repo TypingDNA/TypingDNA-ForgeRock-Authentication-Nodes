@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.util;
 
 import org.forgerock.http.HttpApplicationException;
@@ -26,46 +27,22 @@ import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.services.context.RootContext;
 import org.forgerock.util.Function;
 import org.forgerock.util.Options;
-import org.forgerock.util.Strings;
 import org.forgerock.util.time.Duration;
 
-import static org.forgerock.util.CloseSilentlyFunction.closeSilently;
-import static org.forgerock.util.Closeables.closeSilentlyAsync;
-import static org.forgerock.json.JsonValue.json;
-import static org.forgerock.http.protocol.Responses.noopExceptionFunction;
-
 import java.net.URISyntaxException;
-import java.util.Base64;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class TypingDNAApi {
+import static org.forgerock.http.protocol.Responses.noopExceptionFunction;
+import static org.forgerock.json.JsonValue.json;
+import static org.forgerock.util.CloseSilentlyFunction.closeSilently;
+import static org.forgerock.util.Closeables.closeSilentlyAsync;
 
-    public enum PatternType {
-        ANY_TEXT(0),
-        SAME_TEXT(1),
-        SAME_TEXT_EXTENDED(2);
+public class HTTPRequest {
 
-        private final int type;
-
-        PatternType(int type) {
-            this.type = type;
-        }
-
-        public int getType() {
-            return type;
-        }
-    }
-
-    private final String apiUrl;
-    private final String apiKey;
-    private final String apiSecret;
     private final HttpClientHandler httpClientHandler;
 
-    public TypingDNAApi(String apiUrl, String apiKey, String apiSecret, int requestTimeout) throws NodeProcessException {
-        this.apiUrl = apiUrl;
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
-
+    public HTTPRequest(int requestTimeout) throws NodeProcessException {
         Options options = Options.defaultOptions();
         options.set(HttpClientHandler.OPTION_CONNECT_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.SECONDS));
         options.set(HttpClientHandler.OPTION_SO_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.SECONDS));
@@ -77,14 +54,8 @@ public class TypingDNAApi {
         }
     }
 
-    public JsonValue checkUser(String username, PatternType patternType, String textId, String requestIdentifier) throws NodeProcessException {
-        StringBuilder uri = new StringBuilder(String.format("%s/user/%s?type=%d&custom_field=%s", apiUrl, username,
-                patternType.getType(), requestIdentifier));
-        if (!Strings.isNullOrEmpty(textId)) {
-            uri.append(String.format("&textid=%s", textId));
-        }
-
-        Request request = createRequest(uri.toString(), "GET");
+    public JSONData get(String url, Map<String, String> headers) throws NodeProcessException {
+        Request request = createRequest(url, "GET", headers);
 
         JsonValue reqResponse;
         try {
@@ -96,24 +67,30 @@ public class TypingDNAApi {
             throw new NodeProcessException("Failed to process API request " + request.getUri() + e.getMessage());
         }
 
-        return reqResponse;
+        return new JSONData(reqResponse);
     }
 
-    public JsonValue save(String username, String typingPattern, String requestIdentifier) throws NodeProcessException {
-        return saveOrVerify("save", username, typingPattern, requestIdentifier);
+    public JSONData delete(String url, Map<String, String> headers) throws NodeProcessException {
+        Request request = createRequest(url, "DELETE", headers);
+
+        JsonValue reqResponse;
+        try {
+            reqResponse = httpClientHandler.handle(new RootContext(), request)
+                    .thenAlways(closeSilentlyAsync(request))
+                    .then(closeSilently(mapToJsonValue()), noopExceptionFunction())
+                    .getOrThrow();
+        } catch (InterruptedException | RuntimeException e) {
+            throw new NodeProcessException("Failed to process API request " + request.getUri() + e.getMessage());
+        }
+
+        return new JSONData(reqResponse);
     }
 
-    public JsonValue verify(String username, String typingPattern, String requestIdentifier) throws NodeProcessException {
-        return saveOrVerify("verify", username, typingPattern, requestIdentifier);
-    }
-
-    private JsonValue saveOrVerify(String action, String username, String typingPattern, String requestIdentifier) throws NodeProcessException {
-        String uri = String.format("%s/%s/%s", apiUrl, action, username);
-        Request request = createRequest(uri, "POST");
+    public JSONData post(String url, Map<String, String> headers, Map<String, String> data) throws NodeProcessException {
+        Request request = createRequest(url, "POST", headers);
 
         final Form form = new Form();
-        form.add("tp", typingPattern);
-        form.add("custom_field", requestIdentifier);
+        data.forEach(form::add);
         form.toRequestEntity(request);
 
         JsonValue reqResponse;
@@ -126,10 +103,10 @@ public class TypingDNAApi {
             throw new NodeProcessException("Failed to process API request " + request.getUri() + e.getMessage());
         }
 
-        return reqResponse;
+        return new JSONData(reqResponse);
     }
 
-    private Request createRequest(String uri, String method) throws NodeProcessException {
+    private Request createRequest(String uri, String method, Map<String, String> headers) throws NodeProcessException {
         Request request;
         try {
             request = new Request().setUri(uri);
@@ -138,23 +115,10 @@ public class TypingDNAApi {
         }
 
         request.setMethod(method);
-        if (!method.equals("GET")) {
-            request.getHeaders().add("Content-Type", "application/json");
-        }
-        request.getHeaders().add("Accept", "application/json");
-        request.getHeaders().add("Authorization", getAuthString());
+        request.getHeaders().add("Content-Type", "application/json");
+        headers.forEach((k, v) -> request.getHeaders().add(k, v));
 
         return request;
-    }
-
-    private String getAuthString() {
-        StringBuilder authString = new StringBuilder();
-        authString.append("Basic ");
-
-        Base64.Encoder encoder = Base64.getEncoder();
-        authString.append(encoder.encodeToString(String.format("%s:%s", apiKey, apiSecret).getBytes()));
-
-        return authString.toString();
     }
 
     private static Function<Response, JsonValue, NodeProcessException> mapToJsonValue() {

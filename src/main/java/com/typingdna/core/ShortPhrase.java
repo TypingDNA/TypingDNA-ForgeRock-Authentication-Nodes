@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.core;
 
 import com.google.common.collect.ImmutableList;
@@ -21,7 +22,7 @@ import com.typingdna.core.statechanges.DisplayFormStateChange;
 import com.typingdna.core.statechanges.SingleOutcomeStateChange;
 import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
-import com.typingdna.util.Constants;
+import com.typingdna.util.HelperFunctions;
 import com.typingdna.util.Messages;
 import org.forgerock.util.Strings;
 
@@ -36,24 +37,25 @@ public class ShortPhrase extends AbstractCore {
 
     @Override
     public boolean isFormDisplayed() {
-        boolean isFormDisplayed = getCallbacks(NameCallback.class)
+        boolean isFormDisplayed = state.getCallbacks(NameCallback.class)
                 .map(NameCallback::getName)
                 .anyMatch(result -> !Strings.isNullOrEmpty(result));
-        debug("ShortPhraseUseCase form isDisplayed=" + isFormDisplayed);
+        logger.debug(String.format("In TypingDNAShortPhraseCollector: short phrase input %s inserted", isFormDisplayed ? "is" : "is not"));
         return isFormDisplayed;
     }
 
     @Override
     public StateChange displayForm() {
-        debug("Displaying form");
+        logger.debug("In TypingDNAShortPhraseCollector: inserting short phrase input");
 
         TextOutputCallback prompt = new TextOutputCallback(TextOutputCallback.INFORMATION, Messages.SHORT_PHRASE_PROMPT);
         TextOutputCallback textToEnter = new TextOutputCallback(TextOutputCallback.INFORMATION, config.textToEnter());
         NameCallback input = new NameCallback(Messages.SHORT_PHRASE_PLACEHOLDER);
 
-        sharedState.put(Constants.TEXT_TO_ENTER, config.textToEnter())
-                .put(Constants.TEXT_ID, fnv1a32(config.textToEnter()));
-        return new DisplayFormStateChange(ImmutableList.of(prompt, textToEnter, input)).setSharedState(sharedState);
+        state.setTextToEnter(config.textToEnter());
+        state.setTextId(HelperFunctions.fnv1a32(config.textToEnter()));
+
+        return new DisplayFormStateChange(ImmutableList.of(prompt, textToEnter, input)).setSharedState(state.getSharedState()).setTransientState(state.getTransientState());
     }
 
     @Override
@@ -63,6 +65,6 @@ public class ShortPhrase extends AbstractCore {
 
     @Override
     public StateChange handleForm() {
-        return new SingleOutcomeStateChange().setSharedState(sharedState);
+        return new SingleOutcomeStateChange().setSharedState(state.getSharedState()).setTransientState(state.getTransientState());
     }
 }

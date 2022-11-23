@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.core;
 
 import com.typingdna.core.statechanges.DisplayFormStateChange;
@@ -21,6 +22,7 @@ import com.typingdna.core.statechanges.SingleOutcomeStateChange;
 import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
+import com.typingdna.util.State;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.utils.JsonObject;
 import org.junit.Assert;
@@ -43,6 +45,7 @@ public class ShortPhraseIntegrationTest {
     private ConfigAdapter config;
 
     private ShortPhrase useCase;
+    private State state = State.getInstance();
 
     @Before
     public void setUp() {
@@ -55,7 +58,7 @@ public class ShortPhraseIntegrationTest {
 
     @Test
     public void test_DisplayForm() {
-        useCase.setCurrentState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        state.setState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
         StateChange stateChange = useCase.displayForm();
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -87,7 +90,7 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(new NameCallback("enter text above", "text to enter"));
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         StateChange stateChange = useCase.handleForm();
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -101,9 +104,6 @@ public class ShortPhraseIntegrationTest {
                 singleOutcomeStateChange.sharedState.get(Constants.TEXT_TO_ENTER).asString());
         Assert.assertEquals("textId must be: \"text id\"", "text id",
                 singleOutcomeStateChange.sharedState.get(Constants.TEXT_ID).asString());
-
-
-        Assert.assertNull("transientState is null (unchanged)", singleOutcomeStateChange.transientState);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(new NameCallback("enter text above"));
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         Assert.assertFalse("form is not displayed", useCase.isFormDisplayed());
     }
@@ -137,7 +137,7 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(nameCallback);
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         Assert.assertTrue("form is displayed", useCase.isFormDisplayed());
     }

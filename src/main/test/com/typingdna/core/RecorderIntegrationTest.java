@@ -14,16 +14,18 @@
   limitations under the License.
 */
 
+
 package com.typingdna.core;
 
 import com.sun.identity.authentication.callbacks.HiddenValueCallback;
 import com.sun.identity.authentication.callbacks.ScriptTextOutputCallback;
-import com.typingdna.core.AbstractCore.ActionType;
+import com.typingdna.api.model.DeviceType;
 import com.typingdna.core.statechanges.DisplayFormStateChange;
 import com.typingdna.core.statechanges.SingleOutcomeStateChange;
 import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
+import com.typingdna.util.State;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.scripting.service.ScriptConfiguration;
 import org.forgerock.openam.utils.JsonObject;
@@ -48,6 +50,7 @@ public class RecorderIntegrationTest {
     private ConfigAdapter config;
 
     private Recorder useCase;
+    private State state = State.getInstance();
 
     @Before
     public void setUp() {
@@ -62,7 +65,7 @@ public class RecorderIntegrationTest {
 
     @Test
     public void test_DisplayForm_Verify() {
-        useCase.setCurrentState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        state.setState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -96,7 +99,7 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Authentication failed. Try again...")
                 .build();
 
-        useCase.setCurrentState(sharedState, new JsonObject().build(), new ArrayList<>());
+        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -122,7 +125,7 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Not enough patterns to perform matching. We need to enroll 3 more.")
                 .build();
 
-        useCase.setCurrentState(sharedState, new JsonObject().build(), new ArrayList<>());
+        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -149,7 +152,7 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Not enough patterns with this typing position. We need to enroll 3 more.")
                 .build();
 
-        useCase.setCurrentState(sharedState, new JsonObject().build(), new ArrayList<>());
+        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -183,7 +186,7 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.TEXT_ID_OUTPUT_VARIABLE, "text id"));
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         StateChange stateChange = useCase.handleForm();
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -191,7 +194,7 @@ public class RecorderIntegrationTest {
 
         SingleOutcomeStateChange singleOutcomeStateChange = (SingleOutcomeStateChange) stateChange;
         verifySharedState(singleOutcomeStateChange.sharedState);
-        checkTransientStateIsEmpty(singleOutcomeStateChange.transientState);
+        verifyTransientState(singleOutcomeStateChange.transientState);
     }
 
     @Test
@@ -209,7 +212,7 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.PATTERN_OUTPUT_VARIABLE));
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         Assert.assertFalse("form is not displayed", useCase.isFormDisplayed());
     }
@@ -229,20 +232,21 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.PATTERN_OUTPUT_VARIABLE, "typing pattern"));
 
         /** Test **/
-        useCase.setCurrentState(sharedState, transientState, callbacks);
+        state.setState(sharedState, transientState, callbacks);
 
         Assert.assertTrue("form is displayed", useCase.isFormDisplayed());
     }
 
     private void verifySharedState(JsonValue sharedState) {
         Assert.assertNotNull("sharedState cannot be null", sharedState);
-        Assert.assertEquals(String.format("sharedState must have %s key", 3), 3, sharedState.keys().size());
-        Assert.assertEquals("TYPING_PATTERN should be 'typing pattern'", "typing pattern", sharedState.get(Constants.TYPING_PATTERN).asString());
-        Assert.assertEquals("DEVICE_TYPE should be 'DESKTOP'", AbstractCore.DeviceType.DESKTOP.ordinal(), (int) sharedState.get(Constants.DEVICE_TYPE).asInteger());
-        Assert.assertEquals("TEXT_ID should be 'text id'", "text id", sharedState.get(Constants.TEXT_ID).asString());
+        Assert.assertEquals(String.format("sharedState must have %s key", 1), 1, sharedState.keys().size());
+        Assert.assertEquals("DEVICE_TYPE should be 'DESKTOP'", DeviceType.DESKTOP.ordinal(), (int) sharedState.get(Constants.DEVICE_TYPE).asInteger());
     }
 
-    private void checkTransientStateIsEmpty(JsonValue transientState) {
-        Assert.assertNull("transientState is null (unchanged)", transientState);
+    private void verifyTransientState(JsonValue transientState) {
+        Assert.assertNotNull("transientState cannot be null", transientState);
+        Assert.assertEquals(String.format("transientState must have %s key", 2), 2, transientState.keys().size());
+        Assert.assertEquals("TYPING_PATTERN should be 'typing pattern'", "typing pattern", transientState.get(Constants.TYPING_PATTERN).asString());
+        Assert.assertEquals("TEXT_ID should be 'text id'", "text id", transientState.get(Constants.TEXT_ID).asString());
     }
 }

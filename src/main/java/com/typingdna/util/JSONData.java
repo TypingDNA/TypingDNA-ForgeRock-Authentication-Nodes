@@ -15,19 +15,27 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.util;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.forgerock.json.JsonValue;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+public class JSONData {
+    private final JsonValue jsonValue;
+
+    public JSONData(JsonValue jsonValue) {
+        this.jsonValue = jsonValue;
+    }
+
+    public JsonValue getJsonValue() {
+        return jsonValue;
+    }
+
+    public <T> T getValue(String key, T orElse) {
+        if (!jsonValue.keys().contains(key)) {
+            return orElse;
+        }
+
+        Object value = jsonValue.get(key).getObject();
+        return (T) value;
+    }
 }

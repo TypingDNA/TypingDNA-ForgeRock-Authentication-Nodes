@@ -25,25 +25,16 @@ import org.forgerock.util.i18n.PreferredLocales;
 
 import java.util.List;
 
-public class TypingDNADecisionOutcomeProvider implements OutcomeProvider {
-
-    public enum TypingDNADecisionOutcome {
-        RETRY,
-        ENROLL,
-        MATCH,
-        NO_MATCH,
-        FAIL,
-        INITIAL_ENROLLMENT_COMPLETE,
+public class TypingDNAResetProfileOutcomeProvider implements OutcomeProvider {
+    public enum TypingDNAResetProfileOutcome {
+        SUCCESS,
+        ERROR,
     }
 
     @Override
     public List<Outcome> getOutcomes(PreferredLocales preferredLocales, JsonValue jsonValue) throws NodeProcessException {
         return ImmutableList.of(
-                new Outcome(TypingDNADecisionOutcome.ENROLL.name(), "Enroll"),
-                new Outcome(TypingDNADecisionOutcome.INITIAL_ENROLLMENT_COMPLETE.name(), "Initial enrollment complete"),
-                new Outcome(TypingDNADecisionOutcome.RETRY.name(), "Retry"),
-                new Outcome(TypingDNADecisionOutcome.MATCH.name(), "Match"),
-                new Outcome(TypingDNADecisionOutcome.NO_MATCH.name(), "No match"),
-                new Outcome(TypingDNADecisionOutcome.FAIL.name(), "Fail"));
+                new Outcome(TypingDNAResetProfileOutcomeProvider.TypingDNAResetProfileOutcome.SUCCESS.name(), "Success"),
+                new Outcome(TypingDNAResetProfileOutcomeProvider.TypingDNAResetProfileOutcome.ERROR.name(), "Error"));
     }
 }

@@ -15,19 +15,21 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.util;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public enum HashAlgorithm {
+    MD5("MD5"),
+    SHA1("SHA-1"),
+    SHA256("SHA-256");
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+    private final String name;
+
+    private HashAlgorithm(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

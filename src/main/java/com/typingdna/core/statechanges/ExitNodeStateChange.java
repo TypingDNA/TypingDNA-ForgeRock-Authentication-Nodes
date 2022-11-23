@@ -14,16 +14,23 @@
   limitations under the License.
 */
 
+
 package com.typingdna.core.statechanges;
 
+import com.typingdna.api.model.APIResponse;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
+
+import java.util.Optional;
 
 
 public class ExitNodeStateChange implements StateChange {
     public final String outcome;
     public JsonValue sharedState = null;
     public JsonValue transientState = null;
+    public Optional<APIResponse> apiResponse = Optional.empty();
+    public String action = "n/a";
+    public boolean isAutoEnroll = false;
 
     public ExitNodeStateChange(String outcome) {
         this.outcome = outcome;
@@ -36,6 +43,29 @@ public class ExitNodeStateChange implements StateChange {
 
     public ExitNodeStateChange setTransientState(JsonValue transientState) {
         this.transientState = transientState;
+        return this;
+    }
+
+    public ExitNodeStateChange setApiResponse(APIResponse apiResponse) {
+        this.apiResponse = Optional.of(apiResponse);
+        return this;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public ExitNodeStateChange setAction(String action) {
+        this.action = action;
+        return this;
+    }
+
+    public boolean isAutoEnroll() {
+        return isAutoEnroll;
+    }
+
+    public ExitNodeStateChange setAutoEnroll(boolean autoEnroll) {
+        isAutoEnroll = autoEnroll;
         return this;
     }
 

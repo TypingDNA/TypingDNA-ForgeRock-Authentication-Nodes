@@ -14,7 +14,14 @@
   limitations under the License.
 */
 
+
 package com.typingdna.util;
+
+import org.forgerock.json.JsonValue;
+
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public final class HelperFunctions {
     public static String trimUrl(String url) {
@@ -39,5 +46,45 @@ public final class HelperFunctions {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static String hashText(String text, String salt, HashAlgorithm algorithm) {
+        String hashedText = "";
+        try {
+            MessageDigest hash = MessageDigest.getInstance(algorithm.toString());
+            hash.update(String.format("%s%s", salt, text).getBytes());
+            hashedText = HelperFunctions.bytesToHex(hash.digest());
+        } catch (NoSuchAlgorithmException e) {
+        }
+
+        return hashedText;
+    }
+
+    public static String fnv1a32(String text) {
+        if (text == null) {
+            return "";
+        }
+
+        String data = text.toLowerCase();
+        BigInteger hash = new BigInteger("721b5ad4", 16);
+
+        for (byte b : data.getBytes()) {
+            hash = hash.xor(BigInteger.valueOf((int) b & 0xff));
+            hash = hash.multiply(new BigInteger("01000193", 16)).mod(new BigInteger("2").pow(32));
+        }
+        return hash.toString();
+    }
+
+    public static <T> T getValueFromJson(JsonValue json, String key, T defaultValue) {
+        if (json == null) {
+            return defaultValue;
+        }
+
+        Object value = json.get(key).getObject();
+        if (value == null) {
+            return defaultValue;
+        }
+
+        return (T) value;
     }
 }

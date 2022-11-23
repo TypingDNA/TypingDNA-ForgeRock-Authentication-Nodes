@@ -15,19 +15,33 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.api.model;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public abstract class APIResponse {
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+    private boolean error = false;
+    private int code = 0;
+    private boolean isTemporary = false;
+
+    public APIResponse() {
+        this.error = false;
+    }
+
+    public APIResponse(int code, boolean isTemporary) {
+        this.error = true;
+        this.code = code;
+        this.isTemporary = isTemporary;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public boolean isTemporary() {
+        return isTemporary;
+    }
 }

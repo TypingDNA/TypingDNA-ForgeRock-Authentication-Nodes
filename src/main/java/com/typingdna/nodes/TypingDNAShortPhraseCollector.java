@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.nodes;
 
 import javax.inject.Inject;
@@ -22,7 +23,9 @@ import com.typingdna.core.AbstractCore;
 import com.typingdna.core.ShortPhrase;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
+import com.typingdna.util.Logger;
 import com.typingdna.util.Messages;
+import com.typingdna.util.State;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 
@@ -55,21 +58,28 @@ public class TypingDNAShortPhraseCollector extends SingleOutcomeNode {
     @Inject
     public TypingDNAShortPhraseCollector(@Assisted Config config) {
         this.useCase = new ShortPhrase(config);
-        this.useCase.setDebug(Constants.DEBUG);
+        Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
-    public Action process(TreeContext context) {
-        useCase.setCurrentState(
-                context.sharedState.copy(),
-                context.transientState.copy(),
-                context.getAllCallbacks()
-        );
+    public Action process(TreeContext context) throws NodeProcessException {
+        try {
+            Logger.getInstance().debug("In TypingDNAShortPhraseCollector");
 
-        if (useCase.isFormDisplayed()) {
-            return useCase.handleForm().build();
-        } else {
-            return useCase.displayForm().build();
+            State.getInstance().setState(
+                    context.sharedState.copy(),
+                    context.transientState.copy(),
+                    context.getAllCallbacks()
+            );
+
+            if (useCase.isFormDisplayed()) {
+                return useCase.handleForm().build();
+            } else {
+                return useCase.displayForm().build();
+            }
+        } catch (Exception e) {
+            Logger.getInstance().error(String.format("TypingDNAShortPhraseCollector unexpected error %s", e.getMessage()));
+            throw new NodeProcessException(e);
         }
     }
 }

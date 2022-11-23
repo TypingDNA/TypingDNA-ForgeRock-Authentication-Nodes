@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.nodes;
 
 import javax.inject.Inject;
@@ -23,18 +24,28 @@ import com.typingdna.core.Recorder;
 import com.typingdna.util.ConfigAdapter;
 
 import com.typingdna.util.Constants;
+import com.typingdna.util.Logger;
+import com.typingdna.util.State;
 import org.forgerock.openam.annotations.sm.Attribute;
+
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.TreeContext;
-
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
-
-import org.forgerock.openam.scripting.*;
+import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.scripting.Script;
+import org.forgerock.openam.scripting.ScriptConstants;
+import org.forgerock.openam.scripting.ScriptContext;
+import org.forgerock.openam.scripting.ScriptException;
+import org.forgerock.openam.scripting.SupportedScriptingLanguage;
 import org.forgerock.openam.scripting.service.ScriptConfiguration;
 
 
 import com.google.inject.assistedinject.Assisted;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class,
         configClass = TypingDNARecorder.Config.class)
@@ -83,6 +94,18 @@ public class TypingDNARecorder extends SingleOutcomeNode {
         default boolean disableCopyAndPaste() {
             return true;
         }
+
+        @Override
+        @Attribute(order = 500)
+        default List<String> targetIds() {
+            return new ArrayList<>(Arrays.asList("idToken1", "idToken2", "idToken3"));
+        }
+
+        @Override
+        @Attribute(order = 600)
+        default String submitButtonId() {
+            return "loginButton_0";
+        }
     }
 
     /**
@@ -94,21 +117,28 @@ public class TypingDNARecorder extends SingleOutcomeNode {
     @Inject
     public TypingDNARecorder(@Assisted Config config) {
         this.useCase = new Recorder(config);
-        this.useCase.setDebug(Constants.DEBUG);
+        Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
-    public Action process(TreeContext context) {
-        useCase.setCurrentState(
-                context.sharedState.copy(),
-                context.transientState.copy(),
-                context.getAllCallbacks()
-        );
+    public Action process(TreeContext context) throws NodeProcessException {
+        try {
+            Logger.getInstance().debug("In TypingDNARecorder");
 
-        if (useCase.isFormDisplayed()) {
-            return useCase.handleForm().build();
-        } else {
-            return useCase.displayForm().build();
+            State.getInstance().setState(
+                    context.sharedState.copy(),
+                    context.transientState.copy(),
+                    context.getAllCallbacks()
+            );
+
+            if (useCase.isFormDisplayed()) {
+                return useCase.handleForm().build();
+            } else {
+                return useCase.displayForm().build();
+            }
+        } catch (Exception e) {
+            Logger.getInstance().error(String.format("TypingDNARecorder unexpected error %s", e.getMessage()));
+            throw new NodeProcessException(e);
         }
     }
 }

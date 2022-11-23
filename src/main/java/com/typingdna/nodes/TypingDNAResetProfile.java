@@ -17,16 +17,13 @@
 
 package com.typingdna.nodes;
 
-import javax.inject.Inject;
-
+import com.google.inject.assistedinject.Assisted;
 import com.typingdna.api.DeveloperAPI;
-import com.typingdna.api.ProEnterpriseAPI;
 import com.typingdna.api.TypingDNAAPI;
 import com.typingdna.core.AbstractCore;
-import com.typingdna.core.Decision;
+import com.typingdna.core.ResetProfile;
 import com.typingdna.core.statechanges.ExitNodeStateChange;
-import com.typingdna.nodes.outcomeproviders.TypingDNADecisionOutcomeProvider;
-import com.typingdna.nodes.outcomeproviders.TypingDNADecisionOutcomeProvider.TypingDNADecisionOutcome;
+import com.typingdna.nodes.outcomeproviders.TypingDNAResetProfileOutcomeProvider;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
 import com.typingdna.util.HashAlgorithm;
@@ -35,8 +32,6 @@ import com.typingdna.util.Logger;
 import com.typingdna.util.State;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
-
-import com.google.inject.assistedinject.Assisted;
 import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -44,21 +39,19 @@ import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.sm.annotations.adapters.Password;
 
+import javax.inject.Inject;
 import java.util.UUID;
 
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
 
-@Node.Metadata(outcomeProvider = TypingDNADecisionOutcomeProvider.class,
-        configClass = TypingDNADecisionNode.Config.class)
-public class TypingDNADecisionNode extends AbstractDecisionNode {
+@Node.Metadata(outcomeProvider = TypingDNAResetProfileOutcomeProvider.class,
+        configClass = TypingDNAResetProfile.Config.class)
+public class TypingDNAResetProfile extends AbstractDecisionNode {
 
     private final AbstractCore useCase;
 
-    /**
-     * Configuration for the node.
-     */
     public interface Config extends ConfigAdapter {
         @Override
         @Attribute(order = 100)
@@ -77,58 +70,34 @@ public class TypingDNADecisionNode extends AbstractDecisionNode {
 
         @Override
         @Attribute(order = 310)
-        default Configuration authAPIConfiguration() {
-            return Configuration.Basic;
-        }
-
-        @Override
-        @Attribute(order = 400)
-        default int retries() {
-            return 0;
-        }
-
-        @Override
-        @Attribute(order = 410)
         default HashAlgorithm hashAlgorithm() {
             return HashAlgorithm.MD5;
         }
 
-        @Override
-        @Attribute(order = 900)
+        @Attribute(order = 400)
         default String usernameSalt() {
             return "";
         }
 
         @Override
-        @Attribute(order = 1000)
+        @Attribute(order = 500)
         default String requestIdentifier() {
             return "ForgeRock";
         }
 
         @Override
-        @Attribute(order = 1100)
+        @Attribute(order = 600)
         default int requestTimeout() {
             return 8000;
         }
     }
 
-
-    /**
-     * Create the node using Guice injection. Just-in-time bindings can be used to obtain instances of other classes
-     * from the plugin.
-     *
-     * @param config The service config.
-     */
     @Inject
-    public TypingDNADecisionNode(@Assisted Config config, @Assisted UUID nodeId) throws NodeProcessException {
+    public TypingDNAResetProfile(@Assisted TypingDNAResetProfile.Config config, @Assisted UUID nodeId) throws NodeProcessException {
         String apiUrl = HelperFunctions.trimUrl(config.apiUrl());
-        TypingDNAAPI api;
-        if (config.authAPIConfiguration() == ConfigAdapter.Configuration.Basic) {
-            api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
-        } else {
-            api = new ProEnterpriseAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
-        }
-        this.useCase = new Decision(config, api);
+        TypingDNAAPI api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
+
+        this.useCase = new ResetProfile(config, api);
         this.useCase.setNodeId(nodeId.toString());
         Logger.getInstance().setDebug(Constants.DEBUG);
     }
@@ -136,7 +105,7 @@ public class TypingDNADecisionNode extends AbstractDecisionNode {
     @Override
     public Action process(TreeContext context) {
         try {
-            Logger.getInstance().debug("In TypingDNADecisionNode");
+            Logger.getInstance().debug("In TypingDNAResetProfile");
 
             State.getInstance().setState(
                     context.sharedState.copy(),
@@ -146,10 +115,10 @@ public class TypingDNADecisionNode extends AbstractDecisionNode {
 
             return useCase.handleForm().build();
         } catch (Exception e) {
-            Logger.getInstance().error(String.format("TypingDNADecisionNode unexpected error %s", e.getMessage()));
+            Logger.getInstance().error(String.format("TypingDNAResetProfile unexpected error %s", e.getMessage()));
 
             State.getInstance().setMessage("TypingDNA unknown error. Please try again.");
-            return new ExitNodeStateChange(TypingDNADecisionOutcome.FAIL.name())
+            return new ExitNodeStateChange(TypingDNAResetProfileOutcomeProvider.TypingDNAResetProfileOutcome.ERROR.name())
                     .setSharedState(State.getInstance().getSharedState())
                     .setTransientState(State.getInstance().getTransientState())
                     .build();
@@ -158,10 +127,6 @@ public class TypingDNADecisionNode extends AbstractDecisionNode {
 
     @Override
     public JsonValue getAuditEntryDetail() {
-        if (useCase.getAction().equalsIgnoreCase("ENROLL")) {
-            return json(object(field("action", useCase.getAction())));
-        }
-
-        return json(object(field("action", useCase.getAction()), field("autoenroll", String.valueOf(useCase.isAutoEnroll()))));
+        return json(object(field("action", useCase.getAction())));
     }
 }

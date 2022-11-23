@@ -15,19 +15,24 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.api.model;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public class CheckUserResponse extends APIResponse {
+    public CheckUserResponse() {
+        super();
+    }
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+    public CheckUserResponse(int code, boolean isTemporary) {
+        super(code, isTemporary);
+    }
+
+    private int patternCount = Integer.MAX_VALUE;
+
+    public int getPatternCount() {
+        return patternCount;
+    }
+
+    public void setPatternCount(int patternCount) {
+        this.patternCount = patternCount;
+    }
 }

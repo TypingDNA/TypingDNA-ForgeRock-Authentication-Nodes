@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.util;
 
 import com.typingdna.nodes.TypingDNAPlugin;
@@ -23,6 +24,7 @@ import java.util.Date;
 
 public final class Logger {
     private static Logger instance = null;
+    private boolean debugEnabled = false;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(TypingDNAPlugin.class);
 
     private Logger() {}
@@ -34,7 +36,21 @@ public final class Logger {
         return instance;
     }
 
+    public void setDebug(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
     public void debug(String message) {
-        logger.debug(String.format("[TypingDNA: %s] %s", new Date().toString(), message));
+        if (debugEnabled) {
+            logger.debug(String.format("[TypingDNA: %s] %s", new Date().toString(), message));
+        }
+    }
+
+    public void error(String message) {
+        logger.error(String.format("[TypingDNA: %s] %s", new Date().toString(), message));
+    }
+
+    public void info(String message) {
+        logger.info(String.format("[TypingDNA: %s] %s", new Date().toString(), message));
     }
 }

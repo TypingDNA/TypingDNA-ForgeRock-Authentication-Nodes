@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.nodes;
 
 import java.util.Arrays;
@@ -58,7 +59,7 @@ import org.forgerock.openam.plugins.PluginException;
  */
 public class TypingDNAPlugin extends AbstractNodeAmPlugin {
 
-    static private final String currentVersion = "1.3.0";
+    static private final String currentVersion = "1.8.2";
 
     public TypingDNAPlugin() {
     }
@@ -75,7 +76,8 @@ public class TypingDNAPlugin extends AbstractNodeAmPlugin {
                 TypingDNAPlugin.currentVersion, Arrays.asList(
                         TypingDNADecisionNode.class,
                         TypingDNARecorder.class,
-                        TypingDNAShortPhraseCollector.class
+                        TypingDNAShortPhraseCollector.class,
+                        TypingDNAResetProfile.class
                 ));
     }
 
@@ -101,6 +103,10 @@ public class TypingDNAPlugin extends AbstractNodeAmPlugin {
     @Override
     public void upgrade(String fromVersion) throws PluginException {
         super.upgrade(fromVersion);
+        pluginTools.upgradeAuthNode(TypingDNARecorder.class);
+        pluginTools.upgradeAuthNode(TypingDNAShortPhraseCollector.class);
+        pluginTools.upgradeAuthNode(TypingDNADecisionNode.class);
+        pluginTools.upgradeAuthNode(TypingDNAResetProfile.class);
     }
 
     /**

@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.util;
 
 public final class Messages {
@@ -22,7 +23,17 @@ public final class Messages {
     public static final String SHORT_PHRASE_PLACEHOLDER = "Enter text above"; // not displayed
     public static final String TOO_MANY_TYPOS = "The entered text had too many typos. Please try again.";
     public static final String AUTH_FAILED = "Authentication failed. Try again...";
-    public static final String NOT_ENOUGH_PATTERNS = "Not enough typing patterns to perform authentication. You need to enroll %s more.";
-    public static final String NOT_ENOUGH_PATTERNS_POSITION = "Not enough typing patterns in this typing position. You need to enroll %s more.";
-    public static final String ENROLL_DONE = "Successfully enrolled! You will be able to verify your typing pattern now.";
+    public static final String NOT_ENOUGH_PATTERNS = "Not enough typing patterns to perform authentication. %s pattern(s) enrolled.";
+    public static final String NOT_ENOUGH_PATTERNS_POSITION = "Not enough typing patterns in this typing position. %s pattern(s) enrolled.";
+    public static final String ENROLL_DONE = "Successfully enrolled!";
+    public static final String RESET_SUCCESS = "Profile reset successful";
+    public static final String RESET_FAIL = "Profile reset failure";
+
+    public static String temporaryError(int code) {
+        return String.format("An authentication error occurred, please try again. (code: %d)", code);
+    }
+
+    public static String permanentError(int code) {
+        return String.format("An authentication error occurred. (code: %d)", code);
+    }
 }

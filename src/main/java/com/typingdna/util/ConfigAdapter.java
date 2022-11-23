@@ -14,11 +14,19 @@
   limitations under the License.
 */
 
+
 package com.typingdna.util;
 
 import org.forgerock.openam.scripting.service.ScriptConfiguration;
 
+import java.util.List;
+
 public interface ConfigAdapter {
+
+    enum Configuration {
+        Basic,
+        Advanced,
+    }
 
     default String apiUrl() {
         throw new NoSuchMethodError("apiUrl() method is not implemented");
@@ -32,24 +40,12 @@ public interface ConfigAdapter {
         throw new NoSuchMethodError("apiSecret() method is not implemented");
     }
 
+    default Configuration authAPIConfiguration() {
+        throw new NoSuchMethodError("authAPIConfiguration() method is not implemented");
+    }
+
     default int retries() {
         throw new NoSuchMethodError("retries() method is not implemented");
-    }
-
-    default int matchScore() {
-        throw new NoSuchMethodError("passScore() method is not implemented");
-    }
-
-    default int autoEnrollScore() {
-        throw new NoSuchMethodError("autoEnrollScore() method is not implemented");
-    }
-
-    default int enrollmentsNecessary() {
-        throw new NoSuchMethodError("enrollmentsNecessary() method is not implemented");
-    }
-
-    default boolean verifyAfterEnroll() {
-        throw new NoSuchMethodError("quietEnrollment() method is not implemented");
     }
 
     default String textToEnter() {
@@ -82,5 +78,17 @@ public interface ConfigAdapter {
 
     default int requestTimeout() {
         throw new NoSuchMethodError("requestTimeout() method is not implemented");
+    }
+
+    default List<String> targetIds() {
+        throw new NoSuchMethodError("targetIds() method is not implemented");
+    }
+
+    default String submitButtonId() {
+        throw new NoSuchMethodError("submitButtonId() method is not implemented");
+    }
+
+    default HashAlgorithm hashAlgorithm() {
+        throw new NoSuchMethodError("hashAlgorithm() method is not implemented");
     }
 }

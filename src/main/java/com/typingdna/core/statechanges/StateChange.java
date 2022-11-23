@@ -14,6 +14,7 @@
   limitations under the License.
 */
 
+
 package com.typingdna.core.statechanges;
 
 import org.forgerock.openam.auth.node.api.Action;

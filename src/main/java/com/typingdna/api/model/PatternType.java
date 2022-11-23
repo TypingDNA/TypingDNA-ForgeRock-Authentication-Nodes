@@ -15,19 +15,20 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.api.model;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public enum PatternType {
+    INVALID(-1),
+    ANY_TEXT(0),
+    SAME_TEXT(1),
+    SAME_TEXT_EXTENDED(2);
+    private final int type;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+    PatternType(int type) {
+        this.type = type;
+    }
+
+    public int getType() {
+        return type;
+    }
 }

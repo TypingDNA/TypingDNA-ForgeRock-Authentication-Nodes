@@ -15,19 +15,14 @@
 */
 
 
-package com.typingdna;
+package com.typingdna.api.model;
 
-import com.typingdna.core.RecorderIntegrationTest;
-import com.typingdna.core.ShortPhraseIntegrationTest;
-import com.typingdna.core.DecisionIntegrationTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public class DeleteUserResponse extends APIResponse {
+    public DeleteUserResponse() {
+        super();
+    }
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        RecorderIntegrationTest.class,
-        ShortPhraseIntegrationTest.class,
-        DecisionIntegrationTest.class
-})
-public class IntegrationTests {
+    public DeleteUserResponse(int code, boolean isTemporary) {
+        super(code, isTemporary);
+    }
 }
