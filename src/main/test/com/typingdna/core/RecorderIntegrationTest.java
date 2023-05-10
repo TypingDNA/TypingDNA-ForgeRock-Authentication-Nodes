@@ -49,9 +49,6 @@ public class RecorderIntegrationTest {
     @Mock
     private ConfigAdapter config;
 
-    private Recorder useCase;
-    private State state = State.getInstance();
-
     @Before
     public void setUp() {
         scriptConfiguration = mock(ScriptConfiguration.class);
@@ -59,13 +56,12 @@ public class RecorderIntegrationTest {
 
         when(config.script()).thenReturn(scriptConfiguration);
         when(scriptConfiguration.getScript()).thenReturn("script");
-
-        useCase = new Recorder(config);
     }
 
     @Test
     public void test_DisplayForm_Verify() {
-        state.setState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        State state = new State(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        Recorder useCase = new Recorder(config, state);
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -99,7 +95,8 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Authentication failed. Try again...")
                 .build();
 
-        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
+        State state = new State(sharedState, new JsonObject().build(), new ArrayList<>());
+        Recorder useCase = new Recorder(config, state);
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -125,7 +122,8 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Not enough patterns to perform matching. We need to enroll 3 more.")
                 .build();
 
-        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
+        State state = new State(sharedState, new JsonObject().build(), new ArrayList<>());
+        Recorder useCase = new Recorder(config, state);
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -152,7 +150,8 @@ public class RecorderIntegrationTest {
                 .put(Constants.MESSAGE, "Not enough patterns with this typing position. We need to enroll 3 more.")
                 .build();
 
-        state.setState(sharedState, new JsonObject().build(), new ArrayList<>());
+        State state = new State(sharedState, new JsonObject().build(), new ArrayList<>());
+        Recorder useCase = new Recorder(config, state);
         StateChange stateChange = useCase.displayForm(ActionType.VERIFY);
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -186,7 +185,8 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.TEXT_ID_OUTPUT_VARIABLE, "text id"));
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, callbacks);
+        Recorder useCase = new Recorder(config, state);
 
         StateChange stateChange = useCase.handleForm();
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -212,7 +212,8 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.PATTERN_OUTPUT_VARIABLE));
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, new ArrayList<>());
+        Recorder useCase = new Recorder(config, state);
 
         Assert.assertFalse("form is not displayed", useCase.isFormDisplayed());
     }
@@ -232,7 +233,8 @@ public class RecorderIntegrationTest {
         callbacks.add(new HiddenValueCallback(Constants.PATTERN_OUTPUT_VARIABLE, "typing pattern"));
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, callbacks);
+        Recorder useCase = new Recorder(config, state);
 
         Assert.assertTrue("form is displayed", useCase.isFormDisplayed());
     }

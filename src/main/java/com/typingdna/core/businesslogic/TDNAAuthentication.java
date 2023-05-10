@@ -136,6 +136,7 @@ public class TDNAAuthentication {
                 }
             } else {
                 logger.info(String.format("username %s, action VERIFY, outcome FAIL, autoenroll FALSE", state.getUsername()));
+                state.setPreviousAction(ActionType.VERIFY);
                 stateChange = new ExitNodeStateChange(TypingDNADecisionOutcome.FAIL.name())
                         .setSharedState(state.getSharedState())
                         .setTransientState(state.getTransientState())
@@ -169,6 +170,7 @@ public class TDNAAuthentication {
                 incrementPatternsEnrolled();
             }
 
+            state.setPreviousAction(ActionType.VERIFY);
             stateChange = new ExitNodeStateChange(TypingDNADecisionOutcome.MATCH.name())
                     .setSharedState(state.getSharedState())
                     .setTransientState(state.getTransientState())
@@ -198,6 +200,7 @@ public class TDNAAuthentication {
         } else {
             logger.debug(String.format("In TypingDNADecisionNode: verification failed, no retries left username=%s", authData.getUsername()));
 
+            state.setPreviousAction(ActionType.VERIFY);
             stateChange = new ExitNodeStateChange(TypingDNADecisionOutcome.NO_MATCH.name())
                     .setSharedState(state.getSharedState())
                     .setTransientState(state.getTransientState())

@@ -24,7 +24,7 @@
     <artifactId>TypingDNA</artifactId>
 
     <groupId>com.typingdna</groupId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
     <name>TypingDNA Authentication Nodes</name>
     <description>The TypingDNA Authentication Nodes provide two-factor authentication (2FA) to the ForgeRock Access
         Management solution, powered by our proprietary AI-based typing biometrics (i.e., "keystroke dynamics")

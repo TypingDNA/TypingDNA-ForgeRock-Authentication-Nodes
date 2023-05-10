@@ -118,6 +118,10 @@ public abstract class TypingDNAAPI {
 
     public abstract VerifyResponse verify(String username, String typingPattern, String requestIdentifier);
 
+    public void close() {
+        this.httpRequest.close();
+    }
+
     private JSONData doCheckUser(String username, PatternType patternType, String textId, String requestIdentifier) throws NodeProcessException {
         StringBuilder uri = new StringBuilder(String.format("%s/user/%s?type=%d&custom_field=%s", apiUrl, username,
                 patternType.getType(), requestIdentifier));

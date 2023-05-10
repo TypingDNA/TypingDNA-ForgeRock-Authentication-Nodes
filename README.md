@@ -1,4 +1,4 @@
-# TypingDNA Authentication Nodes <br> <sup>(v1.8.2)</sup>
+# TypingDNA Authentication Nodes <br> <sup>(v1.8.3)</sup>
  
 With [TypingDNA](https://www.typingdna.com/), you can recognize people by the way they type on their keyboards (both desktop and mobile) in order to seamlessly authenticate them in your applications.
 

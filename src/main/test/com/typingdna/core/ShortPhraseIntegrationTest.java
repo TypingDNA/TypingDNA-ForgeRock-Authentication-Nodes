@@ -44,21 +44,17 @@ public class ShortPhraseIntegrationTest {
     @Mock
     private ConfigAdapter config;
 
-    private ShortPhrase useCase;
-    private State state = State.getInstance();
-
     @Before
     public void setUp() {
         config = mock(ConfigAdapter.class);
 
         when(config.textToEnter()).thenReturn("text to enter");
-
-        useCase = new ShortPhrase(config);
     }
 
     @Test
     public void test_DisplayForm() {
-        state.setState(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        State state = new State(new JsonObject().build(), new JsonObject().build(), new ArrayList<>());
+        ShortPhrase useCase = new ShortPhrase(config, state);
         StateChange stateChange = useCase.displayForm();
 
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -90,7 +86,8 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(new NameCallback("enter text above", "text to enter"));
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, callbacks);
+        ShortPhrase useCase = new ShortPhrase(config, state);
 
         StateChange stateChange = useCase.handleForm();
         Assert.assertNotNull("StateChange cannot be null", stateChange);
@@ -118,7 +115,8 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(new NameCallback("enter text above"));
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, callbacks);
+        ShortPhrase useCase = new ShortPhrase(config, state);
 
         Assert.assertFalse("form is not displayed", useCase.isFormDisplayed());
     }
@@ -137,7 +135,8 @@ public class ShortPhraseIntegrationTest {
         callbacks.add(nameCallback);
 
         /** Test **/
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, callbacks);
+        ShortPhrase useCase = new ShortPhrase(config, state);
 
         Assert.assertTrue("form is displayed", useCase.isFormDisplayed());
     }

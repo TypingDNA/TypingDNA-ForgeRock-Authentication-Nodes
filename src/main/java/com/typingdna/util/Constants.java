@@ -18,7 +18,7 @@
 package com.typingdna.util;
 
 public final class Constants {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static final String PATTERN_OUTPUT_VARIABLE = "TP";
     public static final String DEVICE_TYPE_OUTPUT_VARIABLE = "DEVICE_TYPE";

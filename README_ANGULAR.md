@@ -1,4 +1,4 @@
-# TypingDNA Authentication Nodes integration with Angular web app <br> <sup>(v1.8.2)</sup>
+# TypingDNA Authentication Nodes integration with Angular web app <br> <sup>(v1.8.3)</sup>
 
 ## How to?
 

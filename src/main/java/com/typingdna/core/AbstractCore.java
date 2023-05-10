@@ -27,8 +27,6 @@ import com.typingdna.util.State;
 public abstract class AbstractCore {
 
     protected static final Logger logger = Logger.getInstance();
-    protected static final State state = State.getInstance();
-
 
     private String nodeId = null;
     private boolean debugEnabled = false;
@@ -36,15 +34,18 @@ public abstract class AbstractCore {
     private boolean autoEnroll = false;
 
     protected ConfigAdapter config;
+    protected State state;
     protected TypingDNAAPI api;
 
-    public AbstractCore(ConfigAdapter config) {
+    public AbstractCore(ConfigAdapter config, State state) {
         this.config = config;
+        this.state = state;
         this.api = null;
     }
 
-    public AbstractCore(ConfigAdapter config, TypingDNAAPI api) {
+    public AbstractCore(ConfigAdapter config, State state, TypingDNAAPI api) {
         this.config = config;
+        this.state = state;
         this.api = api;
     }
 

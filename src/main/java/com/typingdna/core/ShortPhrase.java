@@ -24,6 +24,7 @@ import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.HelperFunctions;
 import com.typingdna.util.Messages;
+import com.typingdna.util.State;
 import org.forgerock.util.Strings;
 
 import javax.security.auth.callback.NameCallback;
@@ -31,8 +32,8 @@ import javax.security.auth.callback.TextOutputCallback;
 
 public class ShortPhrase extends AbstractCore {
 
-    public ShortPhrase(ConfigAdapter config) {
-        super(config);
+    public ShortPhrase(ConfigAdapter config, State state) {
+        super(config, state);
     }
 
     @Override

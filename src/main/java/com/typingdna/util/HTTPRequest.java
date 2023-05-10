@@ -29,6 +29,7 @@ import org.forgerock.util.Function;
 import org.forgerock.util.Options;
 import org.forgerock.util.time.Duration;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -44,8 +45,8 @@ public class HTTPRequest {
 
     public HTTPRequest(int requestTimeout) throws NodeProcessException {
         Options options = Options.defaultOptions();
-        options.set(HttpClientHandler.OPTION_CONNECT_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.SECONDS));
-        options.set(HttpClientHandler.OPTION_SO_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.SECONDS));
+        options.set(HttpClientHandler.OPTION_CONNECT_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.MILLISECONDS));
+        options.set(HttpClientHandler.OPTION_SO_TIMEOUT, Duration.duration(requestTimeout, TimeUnit.MILLISECONDS));
 
         try {
             this.httpClientHandler = new HttpClientHandler(options);
@@ -104,6 +105,16 @@ public class HTTPRequest {
         }
 
         return new JSONData(reqResponse);
+    }
+
+    public void close() {
+        try {
+            if (this.httpClientHandler != null) {
+                this.httpClientHandler.close();
+            }
+        } catch (IOException e) {
+            Logger.getInstance().error("Failed to close the http client");
+        }
     }
 
     private Request createRequest(String uri, String method, Map<String, String> headers) throws NodeProcessException {

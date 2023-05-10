@@ -59,7 +59,7 @@ import org.forgerock.openam.plugins.PluginException;
  */
 public class TypingDNAPlugin extends AbstractNodeAmPlugin {
 
-    static private final String currentVersion = "1.8.2";
+    static private final String currentVersion = "1.8.3";
 
     public TypingDNAPlugin() {
     }

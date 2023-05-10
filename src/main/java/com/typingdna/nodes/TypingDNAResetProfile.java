@@ -20,7 +20,6 @@ package com.typingdna.nodes;
 import com.google.inject.assistedinject.Assisted;
 import com.typingdna.api.DeveloperAPI;
 import com.typingdna.api.TypingDNAAPI;
-import com.typingdna.core.AbstractCore;
 import com.typingdna.core.ResetProfile;
 import com.typingdna.core.statechanges.ExitNodeStateChange;
 import com.typingdna.nodes.outcomeproviders.TypingDNAResetProfileOutcomeProvider;
@@ -50,7 +49,10 @@ import static org.forgerock.json.JsonValue.object;
         configClass = TypingDNAResetProfile.Config.class)
 public class TypingDNAResetProfile extends AbstractDecisionNode {
 
-    private final AbstractCore useCase;
+    private final Config config;
+    private final UUID nodeId;
+
+    private String actionPerformed = "";
 
     public interface Config extends ConfigAdapter {
         @Override
@@ -94,39 +96,46 @@ public class TypingDNAResetProfile extends AbstractDecisionNode {
 
     @Inject
     public TypingDNAResetProfile(@Assisted TypingDNAResetProfile.Config config, @Assisted UUID nodeId) throws NodeProcessException {
-        String apiUrl = HelperFunctions.trimUrl(config.apiUrl());
-        TypingDNAAPI api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
+        this.config = config;
+        this.nodeId = nodeId;
 
-        this.useCase = new ResetProfile(config, api);
-        this.useCase.setNodeId(nodeId.toString());
         Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
     public Action process(TreeContext context) {
+        State state = new State(context.sharedState.copy(),
+                context.transientState.copy(),
+                context.getAllCallbacks());
+
         try {
             Logger.getInstance().debug("In TypingDNAResetProfile");
 
-            State.getInstance().setState(
-                    context.sharedState.copy(),
-                    context.transientState.copy(),
-                    context.getAllCallbacks()
-            );
+            String apiUrl = HelperFunctions.trimUrl(config.apiUrl());
+            TypingDNAAPI api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
 
-            return useCase.handleForm().build();
+            ResetProfile useCase = new ResetProfile(config, state, api);
+            useCase.setNodeId(nodeId.toString());
+
+            final Action action = useCase.handleForm().build();
+            this.actionPerformed = useCase.getAction();
+
+            api.close();
+
+            return action;
         } catch (Exception e) {
             Logger.getInstance().error(String.format("TypingDNAResetProfile unexpected error %s", e.getMessage()));
 
-            State.getInstance().setMessage("TypingDNA unknown error. Please try again.");
+            state.setMessage("TypingDNA unknown error. Please try again.");
             return new ExitNodeStateChange(TypingDNAResetProfileOutcomeProvider.TypingDNAResetProfileOutcome.ERROR.name())
-                    .setSharedState(State.getInstance().getSharedState())
-                    .setTransientState(State.getInstance().getTransientState())
+                    .setSharedState(state.getSharedState())
+                    .setTransientState(state.getTransientState())
                     .build();
         }
     }
 
     @Override
     public JsonValue getAuditEntryDetail() {
-        return json(object(field("action", useCase.getAction())));
+        return json(object(field("action", actionPerformed)));
     }
 }

@@ -24,11 +24,12 @@ import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.HelperFunctions;
 import com.typingdna.api.TypingDNAAPI;
+import com.typingdna.util.State;
 
 public class Decision extends AbstractCore {
 
-    public Decision(ConfigAdapter config, TypingDNAAPI api) {
-        super(config, api);
+    public Decision(ConfigAdapter config, State state, TypingDNAAPI api) {
+        super(config, state, api);
     }
 
     @Override

@@ -55,9 +55,6 @@ public class DecisionIntegrationTest {
     @Mock
     private TypingDNAAPI api;
 
-    private Decision useCase;
-    private State state = State.getInstance();
-
     private static final String typingPattern = "0,3.2,0,0,11,1004326382,1,77,-1,1,61,-1,1,150,-1,2,68,23,2,27,6,1,0,0,1,2,1,4224896695,1,1,0,0,0,1,1080,1920,1,1015,106,0,1495460187|2983,119|210,74|180,92|75,47|89,150|165,76|90,107|123,72|193,94|93,101|116,105";
 
     @Before
@@ -72,12 +69,12 @@ public class DecisionIntegrationTest {
         when(config.requestIdentifier()).thenReturn("");
         when(config.hashAlgorithm()).thenReturn(HashAlgorithm.MD5);
         when(scriptConfiguration.getScript()).thenReturn("script");
-
-        useCase = new Decision(config, api);
     }
 
     @Test
     public void test_DisplayForm() {
+        State state = new State(new JsonObject().build(), new JsonObject().build(), ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
         Assert.assertThrows(NoSuchMethodError.class, () -> useCase.displayForm());
         Assert.assertThrows(NoSuchMethodError.class, () -> useCase.displayForm(ActionType.VERIFY));
     }
@@ -103,7 +100,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -125,7 +123,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "Not enough typing patterns to perform authentication. 2 pattern(s) enrolled.");
     }
 
     @Test
@@ -149,7 +148,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -171,7 +171,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "Not enough typing patterns to perform authentication. 1 pattern(s) enrolled.");
     }
 
     @Test
@@ -193,7 +194,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -215,7 +217,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "An authentication error occurred, please try again. (code: 48)");
     }
 
     @Test
@@ -238,7 +241,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -251,16 +255,17 @@ public class DecisionIntegrationTest {
 
         verifyState(
                 exitStateChange.sharedState,
-                3,
+                5,
                 exitStateChange.transientState,
                 1,
-                null,
+                ActionType.VERIFY.getAction(),
                 3,
                 null,
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                null);
     }
 
     @Test
@@ -284,7 +289,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -297,16 +303,17 @@ public class DecisionIntegrationTest {
 
         verifyState(
                 exitStateChange.sharedState,
-                3,
+                5,
                 exitStateChange.transientState,
                 1,
-                null,
+                ActionType.VERIFY.getAction(),
                 4,
                 null,
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                null);
     }
 
     @Test
@@ -329,7 +336,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -351,7 +359,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 typingPattern,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "Authentication failed. Try again...");
     }
 
     @Test
@@ -375,7 +384,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -388,16 +398,17 @@ public class DecisionIntegrationTest {
 
         verifyState(
                 exitStateChange.sharedState,
-                4,
+                6,
                 exitStateChange.transientState,
                 1,
-                null,
+                ActionType.VERIFY.getAction(),
                 3,
                 2,
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                null);
     }
 
     @Test
@@ -421,7 +432,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -443,7 +455,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "Not enough typing patterns to perform authentication. 4 pattern(s) enrolled.");
     }
 
     @Test
@@ -467,7 +480,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -489,7 +503,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "Not enough typing patterns in this typing position. 9 pattern(s) enrolled.");
     }
 
     @Test
@@ -513,7 +528,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -535,7 +551,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "Not enough typing patterns in this typing position. 4 pattern(s) enrolled.");
     }
 
     @Test
@@ -557,7 +574,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -579,7 +597,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "An authentication error occurred. (code: 32)");
     }
 
     @Test
@@ -601,7 +620,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -623,7 +643,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "An authentication error occurred, please try again. (code: 36)");
     }
 
     @Test
@@ -646,7 +667,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -659,16 +681,17 @@ public class DecisionIntegrationTest {
 
         verifyState(
                 exitStateChange.sharedState,
-                5,
+                6,
                 exitStateChange.transientState,
                 1,
-                null,
+                ActionType.VERIFY.getAction(),
                 3,
                 3,
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "An authentication error occurred, please try again. (code: 36)");
     }
 
     @Test
@@ -688,7 +711,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -710,7 +734,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "An authentication error occurred, please try again. (code: 48)");
     }
 
     @Test
@@ -732,7 +757,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -754,7 +780,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "Not enough typing patterns to perform authentication. 2 pattern(s) enrolled.");
     }
 
     @Test
@@ -777,7 +804,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -799,7 +827,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "Successfully enrolled!");
     }
 
     @Test
@@ -819,7 +848,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -841,7 +871,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "An authentication error occurred, please try again. (code: 48)");
     }
 
     @Test
@@ -863,7 +894,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -885,7 +917,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 null,
                 null,
-                DeviceType.MOBILE);
+                DeviceType.MOBILE,
+                "Not enough typing patterns in this typing position. 1 pattern(s) enrolled.");
     }
 
     @Test
@@ -911,7 +944,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -933,7 +967,8 @@ public class DecisionIntegrationTest {
                 typingPattern,
                 typingPattern,
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                "Authentication failed. Try again...");
     }
 
     @Test
@@ -959,7 +994,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -975,13 +1011,14 @@ public class DecisionIntegrationTest {
                 5,
                 exitStateChange.transientState,
                 2,
-                ActionType.RETRY.getAction(),
+                ActionType.VERIFY.getAction(),
                 null,
                 2,
                 typingPattern,
                 "previous typing pattern",
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                null);
     }
 
     @Test
@@ -1006,7 +1043,8 @@ public class DecisionIntegrationTest {
                 .build();
         List<Callback> callbacks = ImmutableList.of();
 
-        state.setState(sharedState, transientState, callbacks);
+        State state = new State(sharedState, transientState, ImmutableList.of());
+        Decision useCase = new Decision(config, state, api);
 
         /** TEST **/
         StateChange stateChange = useCase.handleForm();
@@ -1022,13 +1060,14 @@ public class DecisionIntegrationTest {
                 4,
                 exitStateChange.transientState,
                 2,
-                ActionType.RETRY.getAction(),
+                ActionType.VERIFY.getAction(),
                 null,
                 null,
                 typingPattern,
                 "previous typing pattern",
                 null,
-                DeviceType.DESKTOP);
+                DeviceType.DESKTOP,
+                null);
     }
 
     private void verifyState(JsonValue sharedState,
@@ -1041,7 +1080,8 @@ public class DecisionIntegrationTest {
                              String typingPattern,
                              String previousTypingPatterns,
                              String textId,
-                             DeviceType deviceType) {
+                             DeviceType deviceType,
+                             String message) {
 
         Assert.assertNotNull("sharedState cannot be null", sharedState);
         Assert.assertEquals(String.format("sharedState must have %s key", sharedStateLength), (int) sharedStateLength, sharedState.keys().size());
@@ -1055,5 +1095,7 @@ public class DecisionIntegrationTest {
         Assert.assertEquals("deviceType must be " + deviceType, deviceType.ordinal(), (int) sharedState.get(Constants.DEVICE_TYPE).asInteger());
 
         Assert.assertEquals("textId must be " + textId, textId, sharedState.get(Constants.TEXT_ID).asString());
+
+        Assert.assertEquals("message must be " + message, message, sharedState.get(Constants.MESSAGE).asString());
     }
 }

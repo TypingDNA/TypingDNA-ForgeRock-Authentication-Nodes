@@ -19,7 +19,6 @@ package com.typingdna.nodes;
 
 import javax.inject.Inject;
 
-import com.typingdna.core.AbstractCore;
 import com.typingdna.core.Recorder;
 import com.typingdna.util.ConfigAdapter;
 
@@ -51,7 +50,7 @@ import java.util.List;
         configClass = TypingDNARecorder.Config.class)
 public class TypingDNARecorder extends SingleOutcomeNode {
 
-    private final AbstractCore useCase;
+    private final Config config;
 
     /**
      * Configuration for the node.
@@ -116,20 +115,21 @@ public class TypingDNARecorder extends SingleOutcomeNode {
      */
     @Inject
     public TypingDNARecorder(@Assisted Config config) {
-        this.useCase = new Recorder(config);
+        this.config = config;
+
         Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
+        State state = new State(context.sharedState.copy(),
+                context.transientState.copy(),
+                context.getAllCallbacks());
+
         try {
             Logger.getInstance().debug("In TypingDNARecorder");
 
-            State.getInstance().setState(
-                    context.sharedState.copy(),
-                    context.transientState.copy(),
-                    context.getAllCallbacks()
-            );
+            Recorder useCase = new Recorder(config, state);
 
             if (useCase.isFormDisplayed()) {
                 return useCase.handleForm().build();

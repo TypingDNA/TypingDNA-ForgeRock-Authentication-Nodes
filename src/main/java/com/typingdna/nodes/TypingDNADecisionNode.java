@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import com.typingdna.api.DeveloperAPI;
 import com.typingdna.api.ProEnterpriseAPI;
 import com.typingdna.api.TypingDNAAPI;
-import com.typingdna.core.AbstractCore;
 import com.typingdna.core.Decision;
 import com.typingdna.core.statechanges.ExitNodeStateChange;
 import com.typingdna.nodes.outcomeproviders.TypingDNADecisionOutcomeProvider;
@@ -54,7 +53,10 @@ import static org.forgerock.json.JsonValue.object;
         configClass = TypingDNADecisionNode.Config.class)
 public class TypingDNADecisionNode extends AbstractDecisionNode {
 
-    private final AbstractCore useCase;
+    private final Config config;
+    private final UUID nodeId;
+    private String actionPerformed = "";
+    private boolean isAutoEnroll = false;
 
     /**
      * Configuration for the node.
@@ -121,47 +123,56 @@ public class TypingDNADecisionNode extends AbstractDecisionNode {
      */
     @Inject
     public TypingDNADecisionNode(@Assisted Config config, @Assisted UUID nodeId) throws NodeProcessException {
-        String apiUrl = HelperFunctions.trimUrl(config.apiUrl());
-        TypingDNAAPI api;
-        if (config.authAPIConfiguration() == ConfigAdapter.Configuration.Basic) {
-            api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
-        } else {
-            api = new ProEnterpriseAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
-        }
-        this.useCase = new Decision(config, api);
-        this.useCase.setNodeId(nodeId.toString());
+        this.nodeId = nodeId;
+        this.config = config;
+
         Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
     public Action process(TreeContext context) {
+        State state = new State(context.sharedState.copy(),
+                context.transientState.copy(),
+                context.getAllCallbacks());
+
         try {
             Logger.getInstance().debug("In TypingDNADecisionNode");
 
-            State.getInstance().setState(
-                    context.sharedState.copy(),
-                    context.transientState.copy(),
-                    context.getAllCallbacks()
-            );
+            TypingDNAAPI api;
+            String apiUrl = HelperFunctions.trimUrl(config.apiUrl());
+            if (config.authAPIConfiguration() == ConfigAdapter.Configuration.Basic) {
+                api = new DeveloperAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
+            } else {
+                api = new ProEnterpriseAPI(apiUrl, config.apiKey(), new String(config.apiSecret()), config.requestTimeout());
+            }
 
-            return useCase.handleForm().build();
+            Decision useCase = new Decision(config, state, api);
+            useCase.setNodeId(nodeId.toString());
+
+            Action action = useCase.handleForm().build();
+            actionPerformed = useCase.getAction();
+            isAutoEnroll = useCase.isAutoEnroll();
+
+            api.close();
+
+            return action;
         } catch (Exception e) {
             Logger.getInstance().error(String.format("TypingDNADecisionNode unexpected error %s", e.getMessage()));
 
-            State.getInstance().setMessage("TypingDNA unknown error. Please try again.");
+            state.setMessage("TypingDNA unknown error. Please try again.");
             return new ExitNodeStateChange(TypingDNADecisionOutcome.FAIL.name())
-                    .setSharedState(State.getInstance().getSharedState())
-                    .setTransientState(State.getInstance().getTransientState())
+                    .setSharedState(state.getSharedState())
+                    .setTransientState(state.getTransientState())
                     .build();
         }
     }
 
     @Override
     public JsonValue getAuditEntryDetail() {
-        if (useCase.getAction().equalsIgnoreCase("ENROLL")) {
-            return json(object(field("action", useCase.getAction())));
+        if (actionPerformed.equalsIgnoreCase("ENROLL")) {
+            return json(object(field("action", actionPerformed)));
         }
 
-        return json(object(field("action", useCase.getAction()), field("autoenroll", String.valueOf(useCase.isAutoEnroll()))));
+        return json(object(field("action", actionPerformed), field("autoenroll", String.valueOf(isAutoEnroll))));
     }
 }

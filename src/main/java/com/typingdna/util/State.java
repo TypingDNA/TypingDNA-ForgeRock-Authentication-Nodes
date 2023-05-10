@@ -29,23 +29,11 @@ import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 
 public final class State {
 
-    private static State instance = null;
-
     private JsonValue sharedState;
     private JsonValue transientState;
     private List<? extends Callback> callbacks;
 
-    private State() { }
-
-    public static State getInstance() {
-        if (instance == null) {
-            instance = new State();
-        }
-
-        return instance;
-    }
-
-    public void setState(JsonValue sharedState, JsonValue transientState, List<? extends Callback> callbacks) {
+    public State(JsonValue sharedState, JsonValue transientState, List<? extends Callback> callbacks) {
         this.sharedState = sharedState;
         this.transientState = transientState;
         this.callbacks = callbacks;

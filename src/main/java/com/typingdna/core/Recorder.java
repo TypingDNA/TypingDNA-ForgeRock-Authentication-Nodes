@@ -26,6 +26,7 @@ import com.typingdna.core.statechanges.SingleOutcomeStateChange;
 import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
+import com.typingdna.util.State;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.TextOutputCallback;
@@ -35,8 +36,8 @@ import java.util.stream.Collectors;
 
 public class Recorder extends AbstractCore {
 
-    public Recorder(ConfigAdapter config) {
-        super(config);
+    public Recorder(ConfigAdapter config, State state) {
+        super(config, state);
     }
 
     @Override

@@ -19,7 +19,6 @@ package com.typingdna.nodes;
 
 import javax.inject.Inject;
 
-import com.typingdna.core.AbstractCore;
 import com.typingdna.core.ShortPhrase;
 import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.Constants;
@@ -35,7 +34,7 @@ import com.google.inject.assistedinject.Assisted;
         configClass = TypingDNAShortPhraseCollector.Config.class)
 public class TypingDNAShortPhraseCollector extends SingleOutcomeNode {
 
-    private final AbstractCore useCase;
+    private final Config config;
 
     /**
      * Configuration for the node.
@@ -57,20 +56,21 @@ public class TypingDNAShortPhraseCollector extends SingleOutcomeNode {
      */
     @Inject
     public TypingDNAShortPhraseCollector(@Assisted Config config) {
-        this.useCase = new ShortPhrase(config);
+        this.config = config;
+
         Logger.getInstance().setDebug(Constants.DEBUG);
     }
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
+        State state = new State(context.sharedState.copy(),
+                context.transientState.copy(),
+                context.getAllCallbacks());
+
         try {
             Logger.getInstance().debug("In TypingDNAShortPhraseCollector");
 
-            State.getInstance().setState(
-                    context.sharedState.copy(),
-                    context.transientState.copy(),
-                    context.getAllCallbacks()
-            );
+            ShortPhrase useCase = new ShortPhrase(config, state);
 
             if (useCase.isFormDisplayed()) {
                 return useCase.handleForm().build();

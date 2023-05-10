@@ -21,16 +21,17 @@ import com.typingdna.api.model.DeleteUserResponse;
 import com.typingdna.core.statechanges.ExitNodeStateChange;
 import com.typingdna.core.statechanges.StateChange;
 import com.typingdna.nodes.outcomeproviders.TypingDNAResetProfileOutcomeProvider;
-import com.typingdna.util.ConfigAdapter;
 import com.typingdna.api.TypingDNAAPI;
+import com.typingdna.util.ConfigAdapter;
 import com.typingdna.util.HelperFunctions;
 import com.typingdna.util.Logger;
 import com.typingdna.util.Messages;
+import com.typingdna.util.State;
 
 public class ResetProfile extends AbstractCore {
 
-    public ResetProfile(ConfigAdapter config, TypingDNAAPI api) {
-        super(config, api);
+    public ResetProfile(ConfigAdapter config, State state, TypingDNAAPI api) {
+        super(config, state, api);
     }
 
     @Override
@@ -49,6 +50,7 @@ public class ResetProfile extends AbstractCore {
             Logger.getInstance().info(String.format("username %s, action RESET_PROFILE, outcome SUCCESS", state.getUsername()));
 
             state.setMessage(Messages.RESET_SUCCESS);
+            state.setPatternsEnrolled(0);
             return new ExitNodeStateChange(TypingDNAResetProfileOutcomeProvider.TypingDNAResetProfileOutcome.SUCCESS.name()).setSharedState(state.getSharedState()).setTransientState(state.getTransientState());
         }
     }

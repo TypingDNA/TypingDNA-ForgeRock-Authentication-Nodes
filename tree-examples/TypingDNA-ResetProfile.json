@@ -1,0 +1,138 @@
+
+{
+  "origin": "7eaaf9acca4d14b852a80d23be76ee0f -",
+  "innernodes": {
+    "fd034f74-ec01-4236-b9e1-448e1829e58f": {
+      "_id": "fd034f74-ec01-4236-b9e1-448e1829e58f",
+      "_type": {
+        "_id": "UsernameCollectorNode",
+        "name": "Username Collector",
+        "collection": true
+      },
+      "_outcomes": [
+        {
+          "id": "outcome",
+          "displayName": "Outcome"
+        }
+      ]
+    }
+  },
+  "nodes": {
+    "8321e265-cee1-425d-bbb3-9161db4745d8": {
+      "_id": "8321e265-cee1-425d-bbb3-9161db4745d8",
+      "pageHeader": {},
+      "pageDescription": {},
+      "nodes": [
+        {
+          "_id": "fd034f74-ec01-4236-b9e1-448e1829e58f",
+          "nodeType": "UsernameCollectorNode",
+          "displayName": "Username Collector"
+        }
+      ],
+      "_type": {
+        "_id": "PageNode",
+        "name": "Page Node",
+        "collection": true
+      },
+      "_outcomes": [
+        {
+          "id": "outcome",
+          "displayName": "Outcome"
+        }
+      ]
+    },
+    "ab143f4e-bb08-493c-ad12-bc0001cdaced": {
+      "_id": "ab143f4e-bb08-493c-ad12-bc0001cdaced",
+      "tree": "TypingDNA-UsernamePassword",
+      "_type": {
+        "_id": "InnerTreeEvaluatorNode",
+        "name": "Inner Tree Evaluator",
+        "collection": true
+      },
+      "_outcomes": [
+        {
+          "id": "true",
+          "displayName": "True"
+        },
+        {
+          "id": "false",
+          "displayName": "False"
+        }
+      ]
+    },
+    "f42eb0ab-4592-49c5-bcea-1753b175ce7f": {
+      "_id": "f42eb0ab-4592-49c5-bcea-1753b175ce7f",
+      "usernameSalt": "random_string",
+      "requestIdentifier": "ForgeRock",
+      "hashAlgorithm": "SHA256",
+      "apiUrl": "https://api.typingdna.com",
+      "requestTimeout": 8000,
+      "_type": {
+        "_id": "TypingDNAResetProfile",
+        "name": "TypingDNA Reset Profile",
+        "collection": true
+      },
+      "_outcomes": [
+        {
+          "id": "SUCCESS",
+          "displayName": "Success"
+        },
+        {
+          "id": "ERROR",
+          "displayName": "Error"
+        }
+      ]
+    }
+  },
+  "scripts": {},
+  "tree": {
+    "_id": "TypingDNA-ResetProfile",
+    "entryNodeId": "8321e265-cee1-425d-bbb3-9161db4745d8",
+    "staticNodes": {
+      "startNode": {
+        "x": 50,
+        "y": 25
+      },
+      "70e691a5-1e33-4ac3-a356-e7b6d60d92e0": {
+        "x": 868,
+        "y": 115
+      },
+      "e301438c-0bd0-429c-ab0c-66126501069a": {
+        "x": 871,
+        "y": 33
+      }
+    },
+    "uiConfig": {},
+    "nodes": {
+      "8321e265-cee1-425d-bbb3-9161db4745d8": {
+        "displayName": "Reset Page",
+        "nodeType": "PageNode",
+        "x": 156,
+        "y": 96,
+        "connections": {
+          "outcome": "f42eb0ab-4592-49c5-bcea-1753b175ce7f"
+        }
+      },
+      "f42eb0ab-4592-49c5-bcea-1753b175ce7f": {
+        "displayName": "TypingDNA Reset Profile",
+        "nodeType": "TypingDNAResetProfile",
+        "x": 377,
+        "y": 148,
+        "connections": {
+          "ERROR": "e301438c-0bd0-429c-ab0c-66126501069a",
+          "SUCCESS": "ab143f4e-bb08-493c-ad12-bc0001cdaced"
+        }
+      },
+      "ab143f4e-bb08-493c-ad12-bc0001cdaced": {
+        "displayName": "Inner Tree Evaluator",
+        "nodeType": "InnerTreeEvaluatorNode",
+        "x": 646,
+        "y": 164,
+        "connections": {
+          "true": "70e691a5-1e33-4ac3-a356-e7b6d60d92e0",
+          "false": "e301438c-0bd0-429c-ab0c-66126501069a"
+        }
+      }
+    }
+  }
+}
